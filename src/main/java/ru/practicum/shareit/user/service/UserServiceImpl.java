@@ -49,15 +49,6 @@ public class UserServiceImpl implements UserService {
     public UserDto update(int id, UserDto userDto) {
         User user = userDao.getById(id);
 
-        checkConditionsForUpdate(userDto, user, id);
-
-        User userUpdated = userDao.update(user);
-
-        log.info("обновлён пользователь: {}", userUpdated);
-        return userMapper.toUserDto(userUpdated);
-    }
-
-    private void checkConditionsForUpdate(UserDto userDto, User user, int id) {
         if (user == null) {
             throw new NotFoundException("пользователь с id " + id + " не найден");
         }
@@ -71,6 +62,11 @@ public class UserServiceImpl implements UserService {
         if (userDto.getEmail() != null) {
             user.setEmail(userDto.getEmail());
         }
+
+        User userUpdated = userDao.update(user);
+
+        log.info("обновлён пользователь: {}", userUpdated);
+        return userMapper.toUserDto(userUpdated);
     }
 
     @Override
