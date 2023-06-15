@@ -8,7 +8,6 @@ import ru.practicum.shareit.UpdateGroup;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.service.ItemService;
 
-import javax.validation.groups.Default;
 import java.util.List;
 
 /**
@@ -22,7 +21,7 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") int ownerId,
-                          @RequestBody @Validated({Default.class, CreateGroup.class}) ItemDto itemDto) {
+                          @RequestBody @Validated(CreateGroup.class)  ItemDto itemDto) {
         return itemService.create(ownerId, itemDto);
     }
 
@@ -35,7 +34,7 @@ public class ItemController {
     @PatchMapping("/{id}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") int ownerId,
                           @PathVariable int id,
-                          @RequestBody @Validated({Default.class, UpdateGroup.class}) ItemDto itemDto) {
+                          @RequestBody @Validated(UpdateGroup.class)  ItemDto itemDto) {
         return itemService.update(ownerId, id, itemDto);
     }
 

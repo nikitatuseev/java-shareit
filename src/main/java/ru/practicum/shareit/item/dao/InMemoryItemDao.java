@@ -9,12 +9,14 @@ import java.util.stream.Collectors;
 @Repository
 public class InMemoryItemDao implements ItemDao {
     private final Map<Integer, Item> items = new HashMap<>();
+    private final Map<Integer, List<Item>> ownerItemsMap = new HashMap<>();
     private int generatedId = 1;
 
     @Override
     public Item save(Item item) {
         item.setId(generatedId++);
         items.put(item.getId(), item);
+        addItem(item);
         return item;
     }
 
@@ -29,11 +31,22 @@ public class InMemoryItemDao implements ItemDao {
         return item;
     }
 
+    public void addItem(Item item) {
+        int ownerId = item.getOwner().getId();
+
+        // Проверяем наличие списка предметов для данного владельца
+        if (!ownerItemsMap.containsKey(ownerId)) {
+            ownerItemsMap.put(ownerId, new ArrayList<>());
+        }
+
+        // Добавляем предмет в список для данного владельца
+        ownerItemsMap.get(ownerId).add(item);
+    }
+
     @Override
     public List<Item> getAllByOwnerId(int ownerId) {
-        return items.values().stream()
-                .filter(item -> item.getOwner().getId() == ownerId)
-                .collect(Collectors.toList());
+        // Возвращаем пустой список, если нет предметов для данного владельца
+        return ownerItemsMap.getOrDefault(ownerId, Collections.emptyList());
     }
 
     @Override
@@ -43,8 +56,9 @@ public class InMemoryItemDao implements ItemDao {
             return List.of();
         }
         return items.values().stream()
-                .filter(item -> (item.getName().toLowerCase().contains(stringLowerCase))
-                        || (item.getDescription().toLowerCase().contains(stringLowerCase)))
+                .filter(item -> item.getAvailable() &&
+                        (item.getName().toLowerCase().contains(stringLowerCase)
+                                || item.getDescription().toLowerCase().contains(stringLowerCase)))
                 .collect(Collectors.toList());
     }
 }

@@ -3,6 +3,8 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exeption.EmailException;
+import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.exeption.UserException;
 import ru.practicum.shareit.user.UserMapper;
 import ru.practicum.shareit.user.dao.UserDao;
@@ -21,19 +23,23 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        emailUniqueCheck(userDto.getEmail());
+        if (userDto.getEmail().contains("@")) {
+            emailUniqueCheck(userDto.getEmail());
 
-        User user = userMapper.toUser(userDto);
-        User userCreated = userDao.save(user);
+            User user = userMapper.toUser(userDto);
+            User userCreated = userDao.save(user);
 
-        log.info("создан пользователь: {}", userCreated);
-        return userMapper.toUserDto(userCreated);
+            log.info("создан пользователь: {}", userCreated);
+            return userMapper.toUserDto(userCreated);
+        } else {
+            throw new EmailException("неверный email");
+        }
     }
 
     @Override
     public UserDto getById(int id) {
         if (userDao.getById(id) == null) {
-            throw new UserException("пользователь с id " + id + " не найден");
+            throw new NotFoundException("пользователь с id " + id + " не найден");
         }
 
         return userMapper.toUserDto(userDao.getById(id));
@@ -53,7 +59,7 @@ public class UserServiceImpl implements UserService {
 
     private void checkConditionsForUpdate(UserDto userDto, User user, int id) {
         if (user == null) {
-            throw new UserException("пользователь с id " + id + " не найден");
+            throw new NotFoundException("пользователь с id " + id + " не найден");
         }
 
         if (userDto.getName() != null) {
@@ -71,7 +77,7 @@ public class UserServiceImpl implements UserService {
     public void deleteById(int id) {
         User user = userDao.getById(id);
         if (user == null) {
-            throw new UserException("пользователь с id " + id + " не найден");
+            throw new NotFoundException("пользователь с id " + id + " не найден");
         }
 
         userDao.deleteById(id);

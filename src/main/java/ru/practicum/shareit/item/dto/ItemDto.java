@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.CreateGroup;
 import ru.practicum.shareit.user.model.User;
 
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -18,7 +19,7 @@ import javax.validation.constraints.Size;
 public class ItemDto {
     private int id;
 
-    @NotNull(groups = CreateGroup.class, message = "Название не может быть пустым")
+    @NotBlank(groups = CreateGroup.class, message = "Название не может быть пустым")
     @Size(min = 1, max = 64)
     private String name;
 

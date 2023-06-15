@@ -8,11 +8,13 @@ import java.util.*;
 @Repository
 public class InMemoryUserDao implements UserDao {
     private final Map<Integer, User> users = new HashMap<>();
+    private final Map<Integer, String> emails = new HashMap<>();
     private int generatedId = 1;
 
     @Override
     public User save(User user) {
         user.setId(generatedId++);
+        emails.put(user.getId(), user.getEmail());
         users.put(user.getId(), user);
         return user;
     }
@@ -24,12 +26,14 @@ public class InMemoryUserDao implements UserDao {
 
     @Override
     public User update(User user) {
+        emails.put(user.getId(), user.getEmail());
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
     public void deleteById(int id) {
+        emails.remove(users.get(id).getId());
         users.remove(id);
     }
 
@@ -40,11 +44,6 @@ public class InMemoryUserDao implements UserDao {
 
     @Override
     public boolean emailExist(String email) {
-        for (User user : users.values()) {
-            if (user.getEmail().equals(email)) {
-                return true;
-            }
-        }
-        return false;
+        return emails.containsValue(email);
     }
 }

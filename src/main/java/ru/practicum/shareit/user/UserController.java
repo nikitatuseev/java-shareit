@@ -8,7 +8,6 @@ import ru.practicum.shareit.UpdateGroup;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.service.UserService;
 
-import javax.validation.groups.Default;
 import java.util.List;
 
 /**
@@ -21,7 +20,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping
-    public UserDto create(@RequestBody @Validated({Default.class, CreateGroup.class}) UserDto userDto) {
+    public UserDto create(@RequestBody @Validated(CreateGroup.class)  UserDto userDto) {
         return userService.create(userDto);
     }
 
@@ -32,7 +31,7 @@ public class UserController {
 
     @PatchMapping("/{id}")
     public UserDto update(@PathVariable int id,
-                          @RequestBody @Validated({Default.class, UpdateGroup.class}) UserDto userDto) {
+                          @RequestBody @Validated(UpdateGroup.class) UserDto userDto) {
         return userService.update(id, userDto);
     }
 
