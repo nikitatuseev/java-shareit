@@ -3,7 +3,6 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.exeption.EmailException;
 import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.exeption.UserException;
 import ru.practicum.shareit.user.UserMapper;
@@ -23,17 +22,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDto create(UserDto userDto) {
-        if (userDto.getEmail().contains("@")) {
-            emailUniqueCheck(userDto.getEmail());
-
             User user = userMapper.toUser(userDto);
             User userCreated = userDao.save(user);
 
             log.info("создан пользователь: {}", userCreated);
             return userMapper.toUserDto(userCreated);
-        } else {
-            throw new EmailException("неверный email");
-        }
     }
 
     @Override
@@ -53,6 +46,8 @@ public class UserServiceImpl implements UserService {
             throw new NotFoundException("пользователь с id " + id + " не найден");
         }
 
+        String oldEmail = user.getEmail();
+
         if (userDto.getName() != null) {
             user.setName(userDto.getName());
         }
@@ -63,7 +58,7 @@ public class UserServiceImpl implements UserService {
             user.setEmail(userDto.getEmail());
         }
 
-        User userUpdated = userDao.update(user);
+        User userUpdated = userDao.update(user, oldEmail);
 
         log.info("обновлён пользователь: {}", userUpdated);
         return userMapper.toUserDto(userUpdated);

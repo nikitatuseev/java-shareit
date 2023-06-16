@@ -31,7 +31,7 @@ public class InMemoryItemDao implements ItemDao {
         return item;
     }
 
-    public void addItem(Item item) {
+    private void addItem(Item item) {
         int ownerId = item.getOwner().getId();
 
         // Проверяем наличие списка предметов для данного владельца

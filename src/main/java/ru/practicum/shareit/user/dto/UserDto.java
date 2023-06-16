@@ -18,6 +18,6 @@ public class UserDto {
     private String name;
 
     @NotEmpty(groups = CreateGroup.class, message = "Email не может быть пустым")
-    @Email(message = "Введен некорректный email")
+    @Email(groups = CreateGroup.class, message = "Введен некорректный email")
     private String email;
 }

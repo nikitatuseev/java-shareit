@@ -9,7 +9,7 @@ public interface UserDao {
 
     User getById(int id);
 
-    User update(User user);
+    User update(User user, String oldEmail);
 
     void deleteById(int id);
 

@@ -1,14 +1,12 @@
 package ru.practicum.shareit.item;
 
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.user.model.User;
-
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ItemMapper {
-    private ItemMapper() {
-        // Приватный конструктор для предотвращения создания экземпляров
-    }
-
     public static ItemDto toItemDto(Item item, User owner) {
         return new ItemDto(item.getId(),
                 item.getName(),

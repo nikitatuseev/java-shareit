@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.dao;
 
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.exeption.UserException;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.*;
@@ -8,14 +9,17 @@ import java.util.*;
 @Repository
 public class InMemoryUserDao implements UserDao {
     private final Map<Integer, User> users = new HashMap<>();
-    private final Map<Integer, String> emails = new HashMap<>();
+    private final Set<String> emails = new HashSet<>();
     private int generatedId = 1;
 
     @Override
     public User save(User user) {
+        if (emailExist(user.getEmail())) {
+            throw new UserException("email " + user.getEmail() + " уже существует");
+        }
         user.setId(generatedId++);
-        emails.put(user.getId(), user.getEmail());
         users.put(user.getId(), user);
+        emails.add(user.getEmail());
         return user;
     }
 
@@ -25,15 +29,16 @@ public class InMemoryUserDao implements UserDao {
     }
 
     @Override
-    public User update(User user) {
-        emails.put(user.getId(), user.getEmail());
+    public User update(User user, String oldEmail) {
+        emails.remove(oldEmail);
+        emails.add(user.getEmail());
         users.put(user.getId(), user);
         return user;
     }
 
     @Override
     public void deleteById(int id) {
-        emails.remove(users.get(id).getId());
+        emails.remove(users.get(id).getEmail());
         users.remove(id);
     }
 
@@ -44,6 +49,6 @@ public class InMemoryUserDao implements UserDao {
 
     @Override
     public boolean emailExist(String email) {
-        return emails.containsValue(email);
+        return emails.contains(email);
     }
 }
