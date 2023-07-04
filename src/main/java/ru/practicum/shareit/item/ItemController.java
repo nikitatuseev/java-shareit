@@ -5,14 +5,17 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.CreateGroup;
 import ru.practicum.shareit.UpdateGroup;
+import ru.practicum.shareit.item.dto.CommentDto;
+import ru.practicum.shareit.item.dto.CreatCommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithComments;
 import ru.practicum.shareit.item.service.ItemService;
 
+
+import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import java.util.List;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 @RequiredArgsConstructor
@@ -21,20 +24,20 @@ public class ItemController {
 
     @PostMapping
     public ItemDto create(@RequestHeader("X-Sharer-User-Id") int ownerId,
-                          @RequestBody @Validated(CreateGroup.class)  ItemDto itemDto) {
+                          @RequestBody @Validated({CreateGroup.class}) ItemDto itemDto) {
         return itemService.create(ownerId, itemDto);
     }
 
     @GetMapping("/{id}")
-    public ItemDto getById(@RequestHeader("X-Sharer-User-Id") int userId,
-                           @PathVariable int id) {
-        return itemService.getById(userId, id);
+    public ItemDtoWithComments getById(@RequestHeader("X-Sharer-User-Id") int userId,
+                                       @PathVariable @Min(1) int id) {
+        return (ItemDtoWithComments) itemService.getById(userId, id);
     }
 
     @PatchMapping("/{id}")
     public ItemDto update(@RequestHeader("X-Sharer-User-Id") int ownerId,
-                          @PathVariable int id,
-                          @RequestBody @Validated(UpdateGroup.class)  ItemDto itemDto) {
+                          @PathVariable @Min(1) int id,
+                          @RequestBody @Validated({UpdateGroup.class}) ItemDto itemDto) {
         return itemService.update(ownerId, id, itemDto);
     }
 
@@ -44,8 +47,15 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public List<ItemDto> getAllByNameOrDescription(@RequestHeader("X-Sharer-User-Id") int userId,
+    public List<ItemDto> getAllBySubstring(@RequestHeader("X-Sharer-User-Id") int userId,
                                            @RequestParam(name = "text") String substring) {
         return itemService.getAllByNameOrDescription(userId, substring);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") int userId,
+                                    @PathVariable @Min(1) int itemId,
+                                    @RequestBody @Valid CreatCommentDto creatCommentDto) {
+        return itemService.createComment(userId, itemId, creatCommentDto);
     }
 }

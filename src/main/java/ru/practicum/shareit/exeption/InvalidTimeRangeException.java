@@ -4,8 +4,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class UserException extends RuntimeException {
-    public UserException(String s) {
-        super(s);
+public class InvalidTimeRangeException extends RuntimeException {
+    public InvalidTimeRangeException(String message) {
+        super(message);
     }
 }
+
