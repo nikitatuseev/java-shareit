@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.CreateGroup;
 import ru.practicum.shareit.UpdateGroup;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CreatCommentDto;
+import ru.practicum.shareit.item.dto.CreateCommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithComments;
 import ru.practicum.shareit.item.service.ItemService;
@@ -14,6 +14,7 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -49,13 +50,18 @@ public class ItemController {
     @GetMapping("/search")
     public List<ItemDto> getAllBySubstring(@RequestHeader("X-Sharer-User-Id") int userId,
                                            @RequestParam(name = "text") String substring) {
+        if (substring.isEmpty()) {
+            return Collections.emptyList();
+        }
+
         return itemService.getAllByNameOrDescription(userId, substring);
     }
+
 
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") int userId,
                                     @PathVariable @Min(1) int itemId,
-                                    @RequestBody @Valid CreatCommentDto creatCommentDto) {
-        return itemService.createComment(userId, itemId, creatCommentDto);
+                                    @RequestBody @Valid CreateCommentDto createCommentDto) {
+        return itemService.createComment(userId, itemId, createCommentDto);
     }
 }

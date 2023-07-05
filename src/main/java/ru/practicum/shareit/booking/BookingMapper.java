@@ -6,7 +6,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.dto.BookingDto;
 
 import ru.practicum.shareit.booking.dto.BookingDtoForView;
-import ru.practicum.shareit.booking.dto.CreatBookingDto;
+import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.model.Item;
@@ -27,24 +27,25 @@ public class BookingMapper {
         bookingDto.setId(booking.getId());
         bookingDto.setItem(itemMapper.toItemDto(booking.getItem()));
         bookingDto.setBooker(UserMapper.toUserDto(booking.getBooker()));
-        bookingDto.setStatus(booking.getStatus().toString());
-        bookingDto.setStart(booking.getStart().toString());
-        bookingDto.setEnd(booking.getEnd().toString());
+        bookingDto.setStatus(booking.getStatus());
+        bookingDto.setStart(booking.getStart());
+        bookingDto.setEnd(booking.getEnd());
         return bookingDto;
     }
 
-    public Booking toBooking(int userId, CreatBookingDto creatBookingDto) {
+    public Booking toBooking(int userId, CreateBookingDto newBookingDto) {
         User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("Пользователь с id " + userId + " не найден"));
 
-        Item item = itemRepository.findById(Math.toIntExact(creatBookingDto.getItemId()))
-                .orElseThrow(() -> new NotFoundException("Item с id " + creatBookingDto.getItemId() + " не найден"));
+        Item item = itemRepository.findById(Math.toIntExact(newBookingDto.getItemId()))
+                .orElseThrow(() -> new NotFoundException("Item с id " + newBookingDto.getItemId() + " не найден"));
 
         Booking booking = new Booking();
         booking.setBooker(booker);
         booking.setItem(item);
-        booking.setStart(creatBookingDto.getStart());
-        booking.setEnd(creatBookingDto.getEnd());
+        booking.setStart(newBookingDto.getStart());
+        booking.setEnd(newBookingDto.getEnd());
+        booking.setStatus(BookingStatus.WAITING);
         return booking;
     }
 

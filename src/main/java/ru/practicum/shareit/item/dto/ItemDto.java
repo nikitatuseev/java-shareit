@@ -5,7 +5,6 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.CreateGroup;
 import ru.practicum.shareit.booking.dto.BookingDtoForView;
 
-
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 

@@ -2,14 +2,14 @@ package ru.practicum.shareit.item.mapper;
 
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.CommentDto;
-import ru.practicum.shareit.item.dto.CreatCommentDto;
+import ru.practicum.shareit.item.dto.CreateCommentDto;
 import ru.practicum.shareit.item.model.Comment;
 
 @Service
 public class CommentMapper {
-    public Comment toComment(CreatCommentDto creatCommentDto) {
+    public Comment toComment(CreateCommentDto createCommentDto) {
         Comment comment = new Comment();
-        comment.setText(creatCommentDto.getText());
+        comment.setText(createCommentDto.getText());
         return comment;
     }
 
