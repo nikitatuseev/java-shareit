@@ -42,6 +42,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentMapper commentMapper;
     private final ItemMapper itemMapper;
 
+
     @Transactional
     @Override
     public ItemDto create(int ownerId, ItemDto itemDto) {
@@ -66,7 +67,8 @@ public class ItemServiceImpl implements ItemService {
         Item item = itemRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Item с id " + id + " не найден"));
 
-        ItemDtoWithComments itemDtoWithComments = itemMapper.toItemDtoWithComments(item);
+        List<Comment> comments = commentRepository.findByItem(item);
+        ItemDtoWithComments itemDtoWithComments = itemMapper.toItemDtoWithComments(item, comments);
 
         if (!Objects.equals(user.getId(), item.getOwner().getId())) {
             return itemDtoWithComments;
@@ -86,7 +88,8 @@ public class ItemServiceImpl implements ItemService {
         List<ItemDto> itemDtos = new ArrayList<>();
 
         for (Item item : items) {
-            ItemDtoWithComments itemDtoWithComments = itemMapper.toItemDtoWithComments(item);
+            List<Comment> comments = commentRepository.findByItem(item);
+            ItemDtoWithComments itemDtoWithComments = itemMapper.toItemDtoWithComments(item, comments);
 
             setBookingDetails(item, itemDtoWithComments);
             itemDtos.add(itemDtoWithComments);

@@ -57,7 +57,6 @@ public class ItemController {
         return itemService.getAllByNameOrDescription(userId, substring);
     }
 
-
     @PostMapping("/{itemId}/comment")
     public CommentDto createComment(@RequestHeader("X-Sharer-User-Id") int userId,
                                     @PathVariable @Min(1) int itemId,

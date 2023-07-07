@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithComments;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,14 +35,14 @@ public class ItemMapper {
         return item;
     }
 
-    public ItemDtoWithComments toItemDtoWithComments(Item item) {
+    public ItemDtoWithComments toItemDtoWithComments(Item item, List<Comment> comments) {
         ItemDtoWithComments itemDtoWithComments = new ItemDtoWithComments();
         itemDtoWithComments.setId(item.getId());
         itemDtoWithComments.setOwnerId(item.getOwner().getId());
         itemDtoWithComments.setName(item.getName());
         itemDtoWithComments.setDescription(item.getDescription());
         itemDtoWithComments.setAvailable(item.getAvailable());
-        itemDtoWithComments.setComments(item.getComments().stream()
+        itemDtoWithComments.setComments(comments.stream()
                 .map(commentMapper::toCommentDto)
                 .collect(Collectors.toList()));
         return itemDtoWithComments;

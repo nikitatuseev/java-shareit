@@ -5,8 +5,6 @@ import lombok.NoArgsConstructor;
 import ru.practicum.shareit.user.model.User;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
@@ -29,8 +27,4 @@ public class Item {
 
     @Column(name = "is_available", nullable = false)
     private Boolean available;
-   //я что-то запутался как лучше тогда будет сделать маппер потому что без этого поля тесты не работают
-    @OneToMany
-    @JoinColumn(name = "item_id")
-    private List<Comment> comments = new ArrayList<>();
 }
