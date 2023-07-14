@@ -3,89 +3,79 @@ package ru.practicum.shareit.user.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.exeption.NotFoundException;
-import ru.practicum.shareit.exeption.UserException;
 import ru.practicum.shareit.user.UserMapper;
-import ru.practicum.shareit.user.dao.UserDao;
+import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class UserServiceImpl implements UserService {
-    private final UserDao userDao;
+    private final UserRepository userRepository;
     private final UserMapper userMapper;
 
+    @Transactional
     @Override
     public UserDto create(UserDto userDto) {
-            User user = userMapper.toUser(userDto);
-            User userCreated = userDao.save(user);
+        User user = userMapper.toUser(userDto);
+        User userCreated = userRepository.save(user);
 
-            log.info("создан пользователь: {}", userCreated);
-            return userMapper.toUserDto(userCreated);
+        log.info("Создан пользователь: {}", userCreated);
+        return UserMapper.toUserDto(userCreated);
     }
 
     @Override
     public UserDto getById(int id) {
-        if (userDao.getById(id) == null) {
-            throw new NotFoundException("пользователь с id " + id + " не найден");
-        }
-
-        return userMapper.toUserDto(userDao.getById(id));
+        User user = userRepository.findById(id).orElseThrow(() -> new NotFoundException("Пользователь не найден"));
+        return UserMapper.toUserDto(user);
     }
 
+
+    @Transactional
     @Override
     public UserDto update(int id, UserDto userDto) {
-        User user = userDao.getById(id);
-
-        if (user == null) {
-            throw new NotFoundException("пользователь с id " + id + " не найден");
-        }
-
-        String oldEmail = user.getEmail();
+        User userToUpdate = userRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Пользователь с id " + id + " не найден"));
 
         if (userDto.getName() != null) {
-            user.setName(userDto.getName());
-        }
-        if (userDto.getEmail() != null && !user.getEmail().equals(userDto.getEmail())) {
-            emailUniqueCheck(userDto.getEmail());
+            userToUpdate.setName(userDto.getName());
         }
         if (userDto.getEmail() != null) {
-            user.setEmail(userDto.getEmail());
+            userToUpdate.setEmail(userDto.getEmail());
         }
 
-        User userUpdated = userDao.update(user, oldEmail);
+        User userUpdated = userRepository.save(userToUpdate);
 
-        log.info("обновлён пользователь: {}", userUpdated);
-        return userMapper.toUserDto(userUpdated);
+        log.info("Обновлен пользователь: {}", userUpdated);
+        return UserMapper.toUserDto(userUpdated);
     }
 
+
+    @Transactional
     @Override
     public void deleteById(int id) {
-        User user = userDao.getById(id);
-        if (user == null) {
+        Optional<User> user = userRepository.findById(id);
+        if (user.isEmpty()) {
             throw new NotFoundException("пользователь с id " + id + " не найден");
         }
 
-        userDao.deleteById(id);
+        userRepository.deleteById(id);
 
         log.info("удалён пользователь: {}", user);
     }
 
     @Override
     public List<UserDto> getAll() {
-        return userDao.getAll().stream()
-                .map(userMapper::toUserDto)
+        return userRepository.findAll().stream()
+                .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
-    }
-
-    private void emailUniqueCheck(String email) {
-        if (userDao.emailExist(email)) {
-            throw new UserException("email " + email + " уже существует");
-        }
     }
 }
