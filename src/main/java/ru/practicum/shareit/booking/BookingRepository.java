@@ -28,4 +28,6 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
                                                                     Item item,
                                                                     BookingStatus status,
                                                                     LocalDateTime currentTime);
-    List<Booking> findAllByItemOwner(User itemsOwner, Pageable pageable);}
+
+    List<Booking> findAllByItemOwner(User itemsOwner, Pageable pageable);
+}

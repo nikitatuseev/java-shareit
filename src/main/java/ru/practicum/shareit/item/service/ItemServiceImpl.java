@@ -58,7 +58,7 @@ public class ItemServiceImpl implements ItemService {
         item.setOwner(userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("пользователь не найден")));
 
-        if (itemDto.getRequestId()!=null) {
+        if (itemDto.getRequestId() != null) {
             item.setRequest(requestRepository.findById(itemDto.getRequestId())
                     .orElseThrow(() -> new NotFoundException("запрос не найден")));
         }
@@ -98,7 +98,7 @@ public class ItemServiceImpl implements ItemService {
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
 
-        List<Item> items = itemRepository.findAllByOwner(user,pageRequest);
+        List<Item> items = itemRepository.findAllByOwner(user, pageRequest);
         List<ItemDto> itemDtos = new ArrayList<>();
 
         for (Item item : items) {
@@ -161,15 +161,15 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.toItemDto(itemUpdated);
     }
 
-   @Override
-   public List<ItemDto> getAllByNameOrDescription(String text, int from, int size) {
-       if (text.isBlank()) {
-           return Collections.emptyList();
-       }
-       PageRequest page = PageRequest.of(from / size, size);
-       List<Item> items = itemRepository.searchWithPaging(text.toLowerCase(), page).getContent();
-       return items.stream().map(itemMapper::toItemDto).collect(Collectors.toList());
-   }
+    @Override
+    public List<ItemDto> getAllByNameOrDescription(String text, int from, int size) {
+        if (text.isBlank()) {
+            return Collections.emptyList();
+        }
+        PageRequest page = PageRequest.of(from / size, size);
+        List<Item> items = itemRepository.searchWithPaging(text.toLowerCase(), page).getContent();
+        return items.stream().map(itemMapper::toItemDto).collect(Collectors.toList());
+    }
 
     @Transactional
     @Override

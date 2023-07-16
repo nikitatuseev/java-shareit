@@ -3,7 +3,6 @@ package ru.practicum.shareit.booking.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,13 +22,9 @@ import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.exeption.ValidationException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 @Slf4j
 @Service
@@ -114,9 +109,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getAllByUser(int userId, String state, int from, int size) {
         User booker = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("пользователь не найден"));
 
-        if(from<0 || size<0){
+        if (from < 0 || size < 0) {
             throw new ValidationException("неверные параметры");
         }
 
@@ -125,7 +120,7 @@ public class BookingServiceImpl implements BookingService {
 
         List<Booking> bookings = filterBookings(state,
                 bookingRepository.findAllByBooker(booker, pageRequest)
-                );
+        );
 
         return bookings.stream()
                 .map(bookingMapper::toBookingDto)
@@ -166,9 +161,9 @@ public class BookingServiceImpl implements BookingService {
     @Override
     public List<BookingDto> getAllByItemOwner(int userId, String state, int from, int size) {
         User itemOwner = userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User not found"));
+                .orElseThrow(() -> new NotFoundException("пользователь не найден"));
 
-        if(from<0 || size<0){
+        if (from < 0 || size < 0) {
             throw new ValidationException("неверные параметры");
         }
 
@@ -176,7 +171,7 @@ public class BookingServiceImpl implements BookingService {
         PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
         List<Booking> bookings = filterBookings(
-               state, bookingRepository.findAllByItemOwner(itemOwner, pageRequest));
+                state, bookingRepository.findAllByItemOwner(itemOwner, pageRequest));
 
         return bookings.stream()
                 .map(bookingMapper::toBookingDto)
