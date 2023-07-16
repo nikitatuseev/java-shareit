@@ -14,7 +14,6 @@ import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -43,18 +42,18 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDto> getAllByOwnerId(@RequestHeader("X-Sharer-User-Id") int ownerId) {
-        return itemService.getAllByOwnerId(ownerId);
+    public List<ItemDto> getAllByOwnerId(@RequestHeader("X-Sharer-User-Id") int ownerId,
+                                         @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+                                         @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+        return itemService.getAllByOwnerId(ownerId, from, size);
     }
 
     @GetMapping("/search")
     public List<ItemDto> getAllBySubstring(@RequestHeader("X-Sharer-User-Id") int userId,
-                                           @RequestParam(name = "text") String substring) {
-        if (substring.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        return itemService.getAllByNameOrDescription(userId, substring);
+                                           @RequestParam(name = "text") String substring,
+                                           @RequestParam(defaultValue = "0", required = false) @Min(0) int from,
+                                           @RequestParam(defaultValue = "10", required = false) @Min(1) int size) {
+        return itemService.getAllByNameOrDescription(substring, from, size);
     }
 
     @PostMapping("/{itemId}/comment")

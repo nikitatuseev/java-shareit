@@ -26,4 +26,5 @@ public class ItemDto {
     private Boolean available;
     private BookingDtoForView lastBooking;
     private BookingDtoForView nextBooking;
+    private Integer requestId;
 }

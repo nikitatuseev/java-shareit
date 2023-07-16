@@ -2,6 +2,8 @@ package ru.practicum.shareit.item.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingMapper;
@@ -18,6 +20,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.UserRepository;
 import ru.practicum.shareit.exeption.NotFoundException;
@@ -25,6 +28,7 @@ import ru.practicum.shareit.exeption.ValidationException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -41,21 +45,27 @@ public class ItemServiceImpl implements ItemService {
     private final BookingMapper bookingMapper;
     private final CommentMapper commentMapper;
     private final ItemMapper itemMapper;
+    private final RequestRepository requestRepository;
 
 
     @Transactional
     @Override
     public ItemDto create(int ownerId, ItemDto itemDto) {
-        //на стороне контроллера работает но код ошибки другой и из-за этого тесты не проходят
         if (itemDto.getName() == null || itemDto.getName().isBlank()) {
             throw new ValidationException("имя не может быть пустым");
         }
         Item item = itemMapper.toItem(itemDto);
         item.setOwner(userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("пользователь не найден")));
+
+        if (itemDto.getRequestId()!=null) {
+            item.setRequest(requestRepository.findById(itemDto.getRequestId())
+                    .orElseThrow(() -> new NotFoundException("запрос не найден")));
+        }
+
         Item itemCreated = itemRepository.save(item);
 
-        log.info("добавлен item: {}", itemCreated);
+        log.info("добавлен новый item: {}", itemCreated);
         return itemMapper.toItemDto(itemCreated);
     }
 
@@ -80,11 +90,15 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<ItemDto> getAllByOwnerId(int ownerId) {
+    public List<ItemDto> getAllByOwnerId(int ownerId, int from, int size) {
         User user = userRepository.findById(ownerId)
                 .orElseThrow(() -> new NotFoundException("пользователь с id " + ownerId + " не найден"));
+        Sort sort = Sort.sort(Item.class).by(Item::getId);
 
-        List<Item> items = itemRepository.findAllByOwner(user);
+        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
+
+
+        List<Item> items = itemRepository.findAllByOwner(user,pageRequest);
         List<ItemDto> itemDtos = new ArrayList<>();
 
         for (Item item : items) {
@@ -147,17 +161,15 @@ public class ItemServiceImpl implements ItemService {
         return itemMapper.toItemDto(itemUpdated);
     }
 
-
-    @Override
-    public List<ItemDto> getAllByNameOrDescription(int userId, String substring) {
-        userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("пользователь с id" + userId + " не найден"));
-
-        return itemRepository.findAllByNameOrDescriptionContainingIgnoreCase(substring, substring).stream()
-                .filter(Item::getAvailable)
-                .map(itemMapper::toItemDto)
-                .collect(Collectors.toList());
-    }
+   @Override
+   public List<ItemDto> getAllByNameOrDescription(String text, int from, int size) {
+       if (text.isBlank()) {
+           return Collections.emptyList();
+       }
+       PageRequest page = PageRequest.of(from / size, size);
+       List<Item> items = itemRepository.searchWithPaging(text.toLowerCase(), page).getContent();
+       return items.stream().map(itemMapper::toItemDto).collect(Collectors.toList());
+   }
 
     @Transactional
     @Override

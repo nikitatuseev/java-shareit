@@ -15,13 +15,16 @@ import java.util.stream.Collectors;
 public class ItemMapper {
     private final CommentMapper commentMapper;
 
-    public ItemDto toItemDto(Item item) {
+    public  ItemDto toItemDto(Item item) {
         ItemDto itemDto = new ItemDto();
         itemDto.setId(item.getId());
         itemDto.setOwnerId(item.getOwner().getId());
         itemDto.setName(item.getName());
         itemDto.setDescription(item.getDescription());
         itemDto.setAvailable(item.getAvailable());
+        if (item.getRequest() != null) {
+            itemDto.setRequestId(Math.toIntExact(item.getRequest().getId()));
+        }
         return itemDto;
     }
 
