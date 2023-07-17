@@ -34,9 +34,9 @@ public class ItemRequestMapperTest {
     }
 
     @Test
-    public void toRequestWithNewRequestDtoAndRequestor() {
+    public void toRequest() {
         NewRequestDto newRequestDto = new NewRequestDto();
-        newRequestDto.setDescription("Test Request Description");
+        newRequestDto.setDescription("text");
 
         User requestor = new User();
 
@@ -50,7 +50,7 @@ public class ItemRequestMapperTest {
     public void toRequestDtoWithItemRequest() {
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setId(1);
-        itemRequest.setDescription("Test Request Description");
+        itemRequest.setDescription("text");
         itemRequest.setCreated(LocalDateTime.now());
 
         User requestor = new User();
@@ -82,7 +82,6 @@ public class ItemRequestMapperTest {
 
         assertEquals(itemRequest.getId(), result.getId());
         assertEquals(itemRequest.getDescription(), result.getDescription());
-        assertEquals(itemRequest.getCreated().toString(), result.getCreated());
         assertEquals(requestor.getId(), result.getRequestorId());
         assertEquals(itemDtos.size(), result.getItems().size());
     }

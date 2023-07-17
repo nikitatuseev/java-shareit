@@ -16,7 +16,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
 
@@ -30,7 +29,7 @@ public class UserServiceImplTest {
     private UserServiceImpl userService;
 
     @Test
-    public void createWithValidUserDto() {
+    public void create() {
         UserDto userDto = new UserDto();
         userDto.setName("Name name");
         userDto.setEmail("name@yandex.com");
@@ -51,7 +50,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void getByIdWithValidId() {
+    public void getById() {
         int userId = 1;
 
         User user = new User();
@@ -75,7 +74,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void updateWithValidIdAndUserDto() {
+    public void update() {
         int userId = 1;
 
         UserDto userDto = new UserDto();
@@ -102,7 +101,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    public void deleteByIdWithValidId() {
+    public void deleteById() {
         int userId = 1;
 
         User user = new User();

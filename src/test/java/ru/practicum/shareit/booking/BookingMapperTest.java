@@ -41,7 +41,7 @@ public class BookingMapperTest {
     }
 
     @Test
-    public void toBookingDtoWithValidBooking() {
+    public void toBookingDto() {
         Booking booking = new Booking();
         booking.setId(1);
         booking.setItem(new Item());
@@ -58,7 +58,7 @@ public class BookingMapperTest {
     }
 
     @Test
-    public void toBookingWithValidUserIdAndCreateBookingDto() {
+    public void toBooking() {
         int userId = 1;
         CreateBookingDto newBookingDto = CreateBookingDto.builder()
                 .start(LocalDateTime.now().plusDays(1))
@@ -86,7 +86,7 @@ public class BookingMapperTest {
     }
 
     @Test
-    public void toBookingDtoForViewWithValidBooking() {
+    public void toBookingDtoForView() {
         Booking booking = new Booking();
         booking.setId(1);
         booking.setBooker(new User());

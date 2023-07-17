@@ -33,12 +33,12 @@ public class ItemMapperTest {
     }
 
     @Test
-    public void toItemDtoWithValidItem() {
+    public void toItemDto() {
         Item item = new Item();
         item.setId(1);
         item.setOwner(new User());
-        item.setName("Test Item");
-        item.setDescription("Test Description");
+        item.setName("item");
+        item.setDescription("text");
         item.setAvailable(true);
 
         ItemDto itemDto = itemMapper.toItemDto(item);
@@ -51,11 +51,11 @@ public class ItemMapperTest {
     }
 
     @Test
-    public void toItemWithValidItemDto() {
+    public void toItem() {
         ItemDto itemDto = new ItemDto();
         itemDto.setId(1);
-        itemDto.setName("Test Item");
-        itemDto.setDescription("Test Description");
+        itemDto.setName("item");
+        itemDto.setDescription("text");
         itemDto.setAvailable(true);
 
         Item item = itemMapper.toItem(itemDto);
@@ -67,12 +67,12 @@ public class ItemMapperTest {
     }
 
     @Test
-    public void toItemDtoWithCommentsWithValidItemAndComments() {
+    public void toItemDtoWithComments() {
         Item item = new Item();
         item.setId(1);
         item.setOwner(new User());
-        item.setName("Test Item");
-        item.setDescription("Test Description");
+        item.setName("item");
+        item.setDescription("text");
         item.setAvailable(true);
 
         List<Comment> comments = new ArrayList<>();
@@ -90,5 +90,4 @@ public class ItemMapperTest {
         assertEquals(item.getAvailable(), itemDtoWithComments.getAvailable());
         assertEquals(comments.size(), itemDtoWithComments.getComments().size());
     }
-
 }

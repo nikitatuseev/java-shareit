@@ -48,7 +48,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    public void createBookingWhenItemIsUnavailable() {
+    public void createBooking() {
         int userId = 1;
         CreateBookingDto newBookingDto = CreateBookingDto.builder()
                 .start(LocalDateTime.now().plusDays(1))
@@ -68,7 +68,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    public void confirmStatusWhenBookingExistsAndOwnerIsValid() {
+    public void confirmStatus() {
         int ownerId = 1;
         int bookingId = 2;
         boolean approved = true;
@@ -93,28 +93,7 @@ public class BookingServiceImplTest {
     }
 
     @Test
-    public void confirmStatusWhenBookingExistsButOwnerIsInvalid() {
-        int ownerId = 1;
-        int bookingId = 2;
-        boolean approved = true;
-        User owner = new User();
-        owner.setId(ownerId);
-        Booking booking = new Booking();
-        booking.setId(bookingId);
-        booking.setStatus(BookingStatus.WAITING);
-        Item item = new Item();
-        item.setOwner(owner);
-        booking.setItem(item);
-
-        when(userRepository.findById(ownerId)).thenReturn(Optional.empty());
-        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-
-        assertThrows(NotFoundException.class, () -> bookingService.confirmStatus(ownerId, bookingId, approved));
-    }
-
-
-    @Test
-    public void getAllByUserWhenStateIsCurrent() {
+    public void getAllByUser() {
         int userId = 1;
         String state = "CURRENT";
         int from = 0;

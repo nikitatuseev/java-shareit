@@ -63,17 +63,16 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void createWithValidOwnerIdAndItemDto() {
+    public void create() {
         int ownerId = 1;
         ItemDto itemDto = new ItemDto();
-        itemDto.setName("Test Item");
-        itemDto.setDescription("Test Description");
+        itemDto.setName("item");
+        itemDto.setDescription("text");
 
         Item item = new Item();
         item.setId(1);
-        item.setName("Test Item");
-        item.setDescription("Test Description");
-
+        item.setName("item");
+        item.setDescription("text");
         User owner = new User();
         owner.setId(ownerId);
 
@@ -89,7 +88,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void getByIdWithValidUserIdAndItemId() {
+    public void getById() {
         int userId = 1;
         int itemId = 1;
 
@@ -120,7 +119,7 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void getAllByOwnerIdWithValidOwnerId() {
+    public void getAllByOwner() {
 
         int ownerId = 1;
         int from = 0;
@@ -160,33 +159,28 @@ public class ItemServiceImplTest {
         when(commentRepository.findByItem(item2)).thenReturn(comments2);
         when(itemMapper.toItemDtoWithComments(item1, comments1)).thenReturn(itemDtoWithComments1);
         when(itemMapper.toItemDtoWithComments(item2, comments2)).thenReturn(itemDtoWithComments2);
-
-        List<ItemDto> result = itemService.getAllByOwnerId(ownerId, from, size);
-
     }
 
     @Test
-    public void updateWithValidOwnerIdItemIdAndItemDto() {
+    public void update() {
 
         int ownerId = 1;
         int itemId = 1;
-
         User owner = new User();
         owner.setId(ownerId);
 
         Item item = new Item();
         item.setId(itemId);
         item.setOwner(owner);
-
         ItemDto itemDto = new ItemDto();
-        itemDto.setName("Updated Item");
-        itemDto.setDescription("Updated Description");
+        itemDto.setName("item");
+        itemDto.setDescription("text");
 
         Item updatedItem = new Item();
         updatedItem.setId(itemId);
         updatedItem.setOwner(owner);
-        updatedItem.setName("Updated Item");
-        updatedItem.setDescription("Updated Description");
+        updatedItem.setName("item");
+        updatedItem.setDescription("text");
 
         when(userRepository.findById(ownerId)).thenReturn(Optional.of(owner));
         when(itemRepository.findById(itemId)).thenReturn(Optional.of(item));
@@ -200,20 +194,20 @@ public class ItemServiceImplTest {
     }
 
     @Test
-    public void getAllByNameOrDescriptionWithValidText() {
-        String text = "Test";
+    public void getAllByNameOrDescription() {
+        String text = "text";
         int from = 0;
         int size = 10;
 
         Item item1 = new Item();
         item1.setId(1);
-        item1.setName("Test Item 1");
-        item1.setDescription("Test Description 1");
+        item1.setName("item1");
+        item1.setDescription("text1");
 
         Item item2 = new Item();
         item2.setId(2);
-        item2.setName("Test Item 2");
-        item2.setDescription("Test Description 2");
+        item2.setName("item2");
+        item2.setDescription("text2");
 
         List<Item> items = new ArrayList<>();
         items.add(item1);

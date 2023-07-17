@@ -1,6 +1,7 @@
 package ru.practicum.shareit.user.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import ru.practicum.shareit.CreateGroup;
@@ -9,6 +10,7 @@ import javax.validation.constraints.*;
 
 @Data
 @AllArgsConstructor
+@Builder
 @NoArgsConstructor
 public class UserDto {
     private int id;

@@ -21,9 +21,9 @@ public class CommentMapperTest {
     }
 
     @Test
-    public void toCommentWithValidCreateCommentDto() {
+    public void toComment() {
         CreateCommentDto createCommentDto = new CreateCommentDto();
-        createCommentDto.setText("Test Comment");
+        createCommentDto.setText("text");
 
         Comment comment = commentMapper.toComment(createCommentDto);
 
@@ -31,10 +31,10 @@ public class CommentMapperTest {
     }
 
     @Test
-    public void toCommentDtoWithValidComment() {
+    public void toCommentDto() {
         Comment comment = new Comment();
         comment.setId(1);
-        comment.setText("Test Comment");
+        comment.setText("text");
         User user = new User();
         user.setName("Name name");
         comment.setUser(user);

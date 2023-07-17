@@ -41,7 +41,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    public void createWithValidUserIdAndNewRequestDto() {
+    public void create() {
         int userId = 1;
         NewRequestDto creationRequestDto = new NewRequestDto();
 
@@ -65,7 +65,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    public void getByIdWithValidUserIdAndRequestId() {
+    public void getById() {
         int userId = 1;
         int requestId = 1;
 
@@ -88,7 +88,7 @@ public class ItemRequestServiceImplTest {
     }
 
     @Test
-    public void getAllByUserWithValidUserId() {
+    public void getAllByUser() {
         int userId = 1;
 
         User requestor = new User();

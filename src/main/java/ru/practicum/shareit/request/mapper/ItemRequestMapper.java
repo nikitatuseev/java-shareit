@@ -29,7 +29,7 @@ public class ItemRequestMapper {
 
         requestDto.setId(request.getId());
         requestDto.setDescription(request.getDescription());
-        requestDto.setCreated(request.getCreated().toString());
+        requestDto.setCreated(request.getCreated());
         requestDto.setRequestorId(request.getRequestor().getId());
         requestDto.setItems(request.getItems().stream()
                 .map(itemMapper::toItemDto)
