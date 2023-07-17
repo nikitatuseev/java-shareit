@@ -44,13 +44,11 @@ public class ItemRequestServiceImplTest {
     public void create() {
         int userId = 1;
         NewRequestDto creationRequestDto = new NewRequestDto();
-
         User requestor = new User();
         requestor.setId(userId);
 
         ItemRequest request = new ItemRequest();
         request.setId(1);
-
         ItemRequestDto expectedItemRequestDto = new ItemRequestDto();
         expectedItemRequestDto.setId(1);
 
@@ -68,13 +66,10 @@ public class ItemRequestServiceImplTest {
     public void getById() {
         int userId = 1;
         int requestId = 1;
-
         User requestor = new User();
         requestor.setId(userId);
-
         ItemRequest request = new ItemRequest();
         request.setId(requestId);
-
         ItemRequestDto expectedItemRequestDto = new ItemRequestDto();
         expectedItemRequestDto.setId(requestId);
 
@@ -90,10 +85,8 @@ public class ItemRequestServiceImplTest {
     @Test
     public void getAllByUser() {
         int userId = 1;
-
         User requestor = new User();
         requestor.setId(userId);
-
         List<ItemRequest> itemRequests = new ArrayList<>();
         ItemRequest request1 = new ItemRequest();
         request1.setId(1);
@@ -101,7 +94,6 @@ public class ItemRequestServiceImplTest {
         ItemRequest request2 = new ItemRequest();
         request2.setId(2);
         itemRequests.add(request2);
-
         List<ItemRequestDto> expectedItemRequestDtos = new ArrayList<>();
         ItemRequestDto itemRequestDto1 = new ItemRequestDto();
         itemRequestDto1.setId(1);

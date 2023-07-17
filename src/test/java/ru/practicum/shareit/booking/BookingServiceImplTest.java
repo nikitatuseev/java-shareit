@@ -11,6 +11,7 @@ import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.CreateBookingDto;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
+import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 public class BookingServiceImplTest {
@@ -88,6 +90,26 @@ public class BookingServiceImplTest {
 
         verify(bookingRepository, times(1)).save(booking);
         assertEquals(BookingStatus.APPROVED, booking.getStatus());
+    }
+
+    @Test
+    public void confirmStatusBookingExists() {
+        int ownerId = 1;
+        int bookingId = 2;
+        boolean approved = true;
+        User owner = new User();
+        owner.setId(ownerId);
+        Booking booking = new Booking();
+        booking.setId(bookingId);
+        booking.setStatus(BookingStatus.WAITING);
+        Item item = new Item();
+        item.setOwner(owner);
+        booking.setItem(item);
+
+        when(userRepository.findById(ownerId)).thenReturn(Optional.empty());
+        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
+
+        assertThrows(NotFoundException.class, () -> bookingService.confirmStatus(ownerId, bookingId, approved));
     }
 
     @Test

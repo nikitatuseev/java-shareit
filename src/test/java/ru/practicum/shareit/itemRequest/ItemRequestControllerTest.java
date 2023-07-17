@@ -17,6 +17,7 @@ import ru.practicum.shareit.request.service.ItemRequestService;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.hamcrest.Matchers.is;
@@ -49,7 +50,7 @@ class ItemRequestControllerTest {
         ItemRequestDto expectedResult = ItemRequestDto.builder()
                 .id(1)
                 .description("text")
-                .created(LocalDateTime.of(2022,1,2,3,4))
+                .created(LocalDateTime.now())
                 .requestorId(1)
                 .items(Collections.emptyList())
                 .build();
@@ -73,10 +74,11 @@ class ItemRequestControllerTest {
     void getById() throws Exception {
         int userId = 1;
         int requestId = 1;
+
         ItemRequestDto expectedResult = ItemRequestDto.builder()
                 .id(requestId)
                 .description("text")
-                .created(LocalDateTime.of(2022,1,2,3,4))
+                .created(LocalDateTime.now())
                 .requestorId(1)
                 .items(Collections.emptyList())
                 .build();
@@ -95,9 +97,58 @@ class ItemRequestControllerTest {
     }
 
     @Test
-    void getAllFromOrSizeNotValid() throws Exception {
+    void getAllByUser() throws Exception {
         int userId = 1;
+        ItemRequestDto expectedResult = ItemRequestDto.builder()
+                .id(1)
+                .description("text")
+                .created(LocalDateTime.of(2022, 2, 2, 2, 2))
+                .requestorId(1)
+                .items(Collections.emptyList())
+                .build();
 
+        when(requestService.getAllByUser(anyInt())).thenReturn(List.of(expectedResult));
+
+        mvc.perform(get("/requests")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(expectedResult.getId()), Integer.class))
+                .andExpect(jsonPath("$[0].description", is(expectedResult.getDescription())))
+                .andExpect(jsonPath("$[0].requestorId", is(expectedResult.getRequestorId()), Integer.class))
+                .andExpect(jsonPath("$[0].items", hasSize(0)));
+    }
+
+    @Test
+    void getAll() throws Exception {
+        int userId = 1;
+        ItemRequestDto expectedResult = ItemRequestDto.builder()
+                .id(1)
+                .description("text")
+                .created(LocalDateTime.of(222, 2, 2, 2, 2))
+                .requestorId(1)
+                .items(Collections.emptyList())
+                .build();
+
+        when(requestService.getAll(anyInt(), anyInt(), anyInt())).thenReturn(List.of(expectedResult));
+
+        mvc.perform(get("/requests/all?from=0&size=10")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .header("X-Sharer-User-Id", userId)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.*", hasSize(1)))
+                .andExpect(jsonPath("$[0].id", is(expectedResult.getId()), Integer.class))
+                .andExpect(jsonPath("$[0].description", is(expectedResult.getDescription())))
+                .andExpect(jsonPath("$[0].requestorId", is(expectedResult.getRequestorId()), Integer.class))
+                .andExpect(jsonPath("$[0].items", hasSize(0)));
+    }
+
+    @Test
+    void getAllNotValid() throws Exception {
+        int userId = 1;
         mvc.perform(get("/requests/all?from=-1&size=10")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .header("X-Sharer-User-Id", userId)

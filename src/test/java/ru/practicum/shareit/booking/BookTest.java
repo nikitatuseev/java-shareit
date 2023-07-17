@@ -14,6 +14,7 @@ import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingServiceImpl;
 import ru.practicum.shareit.exeption.NoAccessException;
 import ru.practicum.shareit.exeption.NotFoundException;
+import ru.practicum.shareit.exeption.ValidationException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.user.UserRepository;
@@ -42,10 +43,9 @@ class BookTest {
     private BookingServiceImpl bookingService;
 
     @Test
-    void confirmStatus() {
+    void confirmStatus_whenFlagTrue_thenSaveAndBookingDtoReturned() {
         int ownerId = 1;
         int bookingId = 1;
-
         User owner = new User(ownerId, "name", "e@mail.com");
 
         Item item = new Item();
@@ -82,15 +82,12 @@ class BookTest {
     }
 
     @Test
-    void confirmStatusFalse() {
+    void confirmStatus() {
         int ownerId = 1;
         int bookingId = 1;
-
         User owner = new User(ownerId, "name", "e@mail.com");
-
         Item item = new Item();
         item.setOwner(owner);
-
         Booking booking = new Booking();
         booking.setItem(item);
         booking.setStatus(BookingStatus.WAITING);
@@ -121,17 +118,38 @@ class BookTest {
         verifyNoMoreInteractions(bookingRepository, userRepository, bookingMapper);
     }
 
-
     @Test
     void getById() {
         int userId = 1;
         int bookingId = 1;
-
         Item item = new Item();
         item.setOwner(new User(userId, "name", "e@mail.com"));
 
         Booking booking = new Booking();
-        booking.setBooker(new User(2, "name1", "n@yandex.ru"));
+        booking.setBooker(new User(2, "name1", "s@mail.com"));
+        booking.setItem(item);
+
+        when(bookingRepository.findById(bookingId))
+                .thenReturn(Optional.of(booking));
+        when(bookingMapper.toBookingDto(booking))
+                .thenReturn(new BookingDto());
+
+        BookingDto resultBookingDto = bookingService.getById(userId, bookingId);
+
+        assertNotNull(resultBookingDto);
+        verify(bookingRepository, times(1)).findById(bookingId);
+        verify(bookingMapper, times(1)).toBookingDto(booking);
+        verifyNoMoreInteractions(bookingRepository, bookingMapper);
+    }
+
+    @Test
+    void getByIdBooker() {
+        int userId = 1;
+        int bookingId = 1;
+        Item item = new Item();
+        item.setOwner(new User(2, "name", "e@mail.com"));
+        Booking booking = new Booking();
+        booking.setBooker(new User(userId, "name1", "s@mail.com"));
         booking.setItem(item);
 
         when(bookingRepository.findById(bookingId))
@@ -151,12 +169,10 @@ class BookTest {
     void getByIdNoAccess() {
         int userId = 1;
         int bookingId = 1;
-
         Item item = new Item();
         item.setOwner(new User(2, "name", "e@mail.com"));
-
         Booking booking = new Booking();
-        booking.setBooker(new User(3, "name1", "n@yandex.ru"));
+        booking.setBooker(new User(3, "name1", "s@mail.com"));
         booking.setItem(item);
 
         when(bookingRepository.findById(bookingId))
@@ -168,10 +184,9 @@ class BookTest {
     }
 
     @Test
-    void bookingNotFound() {
+    void getByIdBookingNotFound() {
         int userId = 1;
         int bookingId = 999;
-
         when(bookingRepository.findById(bookingId))
                 .thenReturn(Optional.empty());
 
@@ -184,10 +199,9 @@ class BookTest {
     void getAllByUser() {
         int userId = 1;
         String state = "CURRENT";
-
         User booker = new User();
         Booking booking = new Booking();
-        booking.setStart(LocalDateTime.now());
+        booking.setStart(LocalDateTime.now().minusDays(1));
         booking.setEnd(LocalDateTime.now().plusDays(1));
 
         when(userRepository.findById(userId))
@@ -214,10 +228,125 @@ class BookTest {
     }
 
     @Test
-    void userNotFound() {
+    void getAllByUserStateWaiting() {
+        int userId = 1;
+        String state = "WAITING";
+
+        User booker = new User();
+        Booking booking = new Booking();
+        booking.setStatus(BookingStatus.WAITING);
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(booker));
+        when(bookingRepository.findAllByBooker(any(User.class), any(PageRequest.class)))
+                .thenReturn(List.of(booking));
+        when(bookingMapper.toBookingDto(booking))
+                .thenReturn(new BookingDto());
+
+        List<BookingDto> result = bookingService.getAllByUser(userId, state, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        verify(bookingMapper).toBookingDto(bookingArgumentCaptor.capture());
+
+        Booking resultBooking = bookingArgumentCaptor.getValue();
+
+        assertSame(booking, resultBooking);
+        verify(userRepository, times(1)).findById(userId);
+        verify(bookingRepository, times(1)).findAllByBooker(any(User.class), any(PageRequest.class));
+        verify(bookingMapper, times(1)).toBookingDto(booking);
+        verifyNoMoreInteractions(userRepository, bookingRepository, bookingMapper);
+    }
+
+
+    @Test
+    void getAllByUserStatePast() {
+        int userId = 1;
+        String state = "PAST";
+        User booker = new User();
+        Booking booking = new Booking();
+        booking.setStart(LocalDateTime.now().minusDays(2));
+        booking.setEnd(LocalDateTime.now().minusDays(1));
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(booker));
+        when(bookingRepository.findAllByBooker(any(User.class), any(PageRequest.class)))
+                .thenReturn(List.of(booking));
+        when(bookingMapper.toBookingDto(booking))
+                .thenReturn(new BookingDto());
+
+        List<BookingDto> result = bookingService.getAllByUser(userId, state, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        verify(bookingMapper).toBookingDto(bookingArgumentCaptor.capture());
+
+        Booking resultBooking = bookingArgumentCaptor.getValue();
+
+        assertSame(booking, resultBooking);
+        verify(userRepository, times(1)).findById(userId);
+        verify(bookingRepository, times(1)).findAllByBooker(any(User.class), any(PageRequest.class));
+        verify(bookingMapper, times(1)).toBookingDto(booking);
+        verifyNoMoreInteractions(userRepository, bookingRepository, bookingMapper);
+    }
+
+    @Test
+    void getAllByUserUnknown() {
+        int userId = 1;
+        String state = "Unknown state";
+        User booker = new User();
+        Booking booking = new Booking();
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(booker));
+        when(bookingRepository.findAllByBooker(any(User.class), any(PageRequest.class)))
+                .thenReturn(List.of(booking));
+
+        assertThrows(ValidationException.class, () -> bookingService.getAllByUser(userId, state, 0, 10));
+
+        verify(userRepository, times(1)).findById(userId);
+        verify(bookingRepository, times(1)).findAllByBooker(any(User.class), any(PageRequest.class));
+        verifyNoMoreInteractions(userRepository, bookingRepository);
+    }
+
+    @Test
+    void getAllByUserStateFuture() {
+        int userId = 1;
+        String state = "FUTURE";
+        User booker = new User();
+        Booking booking = new Booking();
+        booking.setStart(LocalDateTime.now().plusDays(1));
+        booking.setEnd(LocalDateTime.now().plusDays(2));
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(booker));
+        when(bookingRepository.findAllByBooker(any(User.class), any(PageRequest.class)))
+                .thenReturn(List.of(booking));
+        when(bookingMapper.toBookingDto(booking))
+                .thenReturn(new BookingDto());
+
+        List<BookingDto> result = bookingService.getAllByUser(userId, state, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        verify(bookingMapper).toBookingDto(bookingArgumentCaptor.capture());
+
+        Booking resultBooking = bookingArgumentCaptor.getValue();
+
+        assertSame(booking, resultBooking);
+        verify(userRepository, times(1)).findById(userId);
+        verify(bookingRepository, times(1)).findAllByBooker(any(User.class), any(PageRequest.class));
+        verify(bookingMapper, times(1)).toBookingDto(booking);
+        verifyNoMoreInteractions(userRepository, bookingRepository, bookingMapper);
+    }
+
+    @Test
+    void getAllByUserNotFound() {
         int userId = 999;
         String state = "CURRENT";
-
         when(userRepository.findById(userId))
                 .thenReturn(Optional.empty());
 
@@ -225,5 +354,96 @@ class BookTest {
 
         verify(userRepository, times(1)).findById(userId);
         verifyNoMoreInteractions(userRepository);
+    }
+
+    @Test
+    void getAllByItemOwner() {
+        int userId = 1;
+        String state = "ALL";
+        User itemOwner = new User();
+        Booking booking = new Booking();
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(itemOwner));
+        when(bookingRepository.findAllByItemOwner(any(User.class), any(PageRequest.class)))
+                .thenReturn(List.of(booking));
+        when(bookingMapper.toBookingDto(booking))
+                .thenReturn(new BookingDto());
+
+        List<BookingDto> result = bookingService.getAllByItemOwner(userId, state, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        verify(bookingMapper).toBookingDto(bookingArgumentCaptor.capture());
+
+        Booking resultBooking = bookingArgumentCaptor.getValue();
+
+        assertSame(booking, resultBooking);
+        verify(userRepository, times(1)).findById(userId);
+        verify(bookingRepository, times(1)).findAllByItemOwner(any(User.class), any(PageRequest.class));
+        verify(bookingMapper, times(1)).toBookingDto(booking);
+        verifyNoMoreInteractions(userRepository, bookingRepository, bookingMapper);
+    }
+
+    @Test
+    void getAllByUserRejected() {
+        int userId = 1;
+        String state = "REJECTED";
+        User booker = new User();
+        Booking booking = new Booking();
+        booking.setStatus(BookingStatus.REJECTED);
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(booker));
+        when(bookingRepository.findAllByBooker(any(User.class), any(PageRequest.class)))
+                .thenReturn(List.of(booking));
+        when(bookingMapper.toBookingDto(booking))
+                .thenReturn(new BookingDto());
+
+        List<BookingDto> result = bookingService.getAllByUser(userId, state, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        verify(bookingMapper).toBookingDto(bookingArgumentCaptor.capture());
+
+        Booking resultBooking = bookingArgumentCaptor.getValue();
+
+        assertSame(booking, resultBooking);
+        verify(userRepository, times(1)).findById(userId);
+        verify(bookingRepository, times(1)).findAllByBooker(any(User.class), any(PageRequest.class));
+        verify(bookingMapper, times(1)).toBookingDto(booking);
+        verifyNoMoreInteractions(userRepository, bookingRepository, bookingMapper);
+    }
+
+    @Test
+    void getAllByUserAll() {
+        int userId = 1;
+        String state = "ALL";
+        User booker = new User();
+        Booking booking = new Booking();
+
+        when(userRepository.findById(userId))
+                .thenReturn(Optional.of(booker));
+        when(bookingRepository.findAllByBooker(any(User.class), any(PageRequest.class)))
+                .thenReturn(List.of(booking));
+        when(bookingMapper.toBookingDto(booking))
+                .thenReturn(new BookingDto());
+
+        List<BookingDto> result = bookingService.getAllByUser(userId, state, 0, 10);
+
+        assertNotNull(result);
+        assertEquals(1, result.size());
+
+        verify(bookingMapper).toBookingDto(bookingArgumentCaptor.capture());
+
+        Booking resultBooking = bookingArgumentCaptor.getValue();
+
+        assertSame(booking, resultBooking);
+        verify(userRepository, times(1)).findById(userId);
+        verify(bookingRepository, times(1)).findAllByBooker(any(User.class), any(PageRequest.class));
+        verify(bookingMapper, times(1)).toBookingDto(booking);
+        verifyNoMoreInteractions(userRepository, bookingRepository, bookingMapper);
     }
 }

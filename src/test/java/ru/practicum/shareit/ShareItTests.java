@@ -1,13 +1,14 @@
 package ru.practicum.shareit;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.context.SpringBootTest;
 
-@SpringBootTest
-class ShareItTests {
+import org.junit.jupiter.api.Assertions;
 
-	@Test
-	void contextLoads() {
-	}
+public class ShareItTests {
+    @Test
+    public void mainMethodShouldStartApplicationWithoutErrors() {
+        Assertions.assertDoesNotThrow(() -> ShareItApp.main(new String[]{}));
+    }
 
 }
+
