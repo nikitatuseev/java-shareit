@@ -87,7 +87,7 @@ class ItemTest {
     }
 
     @Test
-    void UserNotFound() {
+    void userNotFound() {
         int userId = 999;
         int id = 1;
         when(userRepository.findById(userId)).thenReturn(Optional.empty());
@@ -97,7 +97,7 @@ class ItemTest {
     }
 
     @Test
-    void ItemNotFound() {
+    void itemNotFound() {
         int userId = 1;
         int id = 999;
         User user = new User();

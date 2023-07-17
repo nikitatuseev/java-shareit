@@ -214,7 +214,7 @@ class BookTest {
     }
 
     @Test
-    void UserNotFound() {
+    void userNotFound() {
         int userId = 999;
         String state = "CURRENT";
 
