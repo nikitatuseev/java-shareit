@@ -112,3 +112,4 @@ public class ItemRequestServiceImplTest {
         assertEquals(expectedItemRequestDtos.size(), result.size());
     }
 }
+

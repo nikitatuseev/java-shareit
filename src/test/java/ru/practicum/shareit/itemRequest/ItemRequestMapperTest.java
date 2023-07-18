@@ -8,6 +8,7 @@ import org.mockito.MockitoAnnotations;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.dto.NewRequestDto;
@@ -24,6 +25,9 @@ import static org.mockito.Mockito.when;
 public class ItemRequestMapperTest {
     @Mock
     private ItemMapper itemMapper;
+
+    @Mock
+    private ItemRepository itemRepository;
 
     @InjectMocks
     private ItemRequestMapper itemRequestMapper;
@@ -55,6 +59,7 @@ public class ItemRequestMapperTest {
 
         User requestor = new User();
         requestor.setId(1);
+        itemRequest.setRequestor(requestor);
 
         List<Item> items = new ArrayList<>();
         Item item1 = new Item();
@@ -64,25 +69,16 @@ public class ItemRequestMapperTest {
         item2.setId(2);
         items.add(item2);
 
-        List<ItemDto> itemDtos = new ArrayList<>();
-        ItemDto itemDto1 = new ItemDto();
-        itemDto1.setId(1);
-        itemDtos.add(itemDto1);
-        ItemDto itemDto2 = new ItemDto();
-        itemDto2.setId(2);
-        itemDtos.add(itemDto2);
-
-        itemRequest.setRequestor(requestor);
-        itemRequest.setItems(items);
-
-        when(itemMapper.toItemDto(item1)).thenReturn(itemDto1);
-        when(itemMapper.toItemDto(item2)).thenReturn(itemDto2);
+        when(itemMapper.toItemDto(item1)).thenReturn(new ItemDto());
+        when(itemMapper.toItemDto(item2)).thenReturn(new ItemDto());
+        when(itemRepository.findAllByRequest(itemRequest)).thenReturn(items);
 
         ItemRequestDto result = itemRequestMapper.toRequestDto(itemRequest);
 
         assertEquals(itemRequest.getId(), result.getId());
         assertEquals(itemRequest.getDescription(), result.getDescription());
         assertEquals(requestor.getId(), result.getRequestorId());
-        assertEquals(itemDtos.size(), result.getItems().size());
+        assertEquals(2, result.getItems().size());
     }
+
 }

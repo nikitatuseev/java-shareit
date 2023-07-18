@@ -25,8 +25,4 @@ public class ItemRequest {
     @ManyToOne
     @JoinColumn(name = "requestor_id", nullable = false)
     private User requestor;
-
-    @OneToMany
-    @JoinColumn(name = "request_id")
-    private List<Item> items = new ArrayList<>();
 }
