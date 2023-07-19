@@ -2,6 +2,7 @@ package ru.practicum.shareit.booking.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,13 +22,9 @@ import ru.practicum.shareit.exeption.NotFoundException;
 import ru.practicum.shareit.exeption.ValidationException;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
-
 
 @Slf4j
 @Service
@@ -110,18 +107,22 @@ public class BookingServiceImpl implements BookingService {
 
 
     @Override
-    public List<BookingDto> getAllByUser(int userId, String state) {
-        User bookingsOwner = userRepository.findById(userId)
+    public List<BookingDto> getAllByUser(int userId, String state, int from, int size) {
+        User booker = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("пользователь не найден"));
-        List<Booking> bookings = bookingRepository.findAllByBooker(bookingsOwner, Sort.by(Sort.Direction.DESC, "start"));
 
-        Stream<Booking> filteredBookings;
-        if (state.isEmpty()) {
-            filteredBookings = bookings.stream();
-        } else {
-            filteredBookings = filterBookings(state, bookings).stream();
+        if (from < 0 || size < 0) {
+            throw new ValidationException("неверные параметры");
         }
-        return filteredBookings
+
+        Sort sort = Sort.sort(Booking.class).by(Booking::getStart).descending();
+        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
+
+        List<Booking> bookings = filterBookings(state,
+                bookingRepository.findAllByBooker(booker, pageRequest)
+        );
+
+        return bookings.stream()
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }
@@ -158,23 +159,21 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
-    public List<BookingDto> getAllByItemOwner(int userId, String state) {
-        User itemsOwner = userRepository.findById(userId)
+    public List<BookingDto> getAllByItemOwner(int userId, String state, int from, int size) {
+        User itemOwner = userRepository.findById(userId)
                 .orElseThrow(() -> new NotFoundException("пользователь не найден"));
 
-        List<Item> items = itemRepository.findAllByOwner(itemsOwner);
-        List<Booking> bookings = new ArrayList<>();
-
-        for (Item item : items) {
-            List<Booking> itemBookings = bookingRepository.findAllByItem(item);
-            bookings.addAll(itemBookings);
+        if (from < 0 || size < 0) {
+            throw new ValidationException("неверные параметры");
         }
 
-        bookings.sort(Comparator.comparing(Booking::getStart).reversed());
+        Sort sort = Sort.sort(Booking.class).by(Booking::getStart).descending();
+        PageRequest pageRequest = PageRequest.of(from > 0 ? from / size : 0, size, sort);
 
-        List<Booking> filteredBookings = filterBookings(state, bookings);
+        List<Booking> bookings = filterBookings(
+                state, bookingRepository.findAllByItemOwner(itemOwner, pageRequest));
 
-        return filteredBookings.stream()
+        return bookings.stream()
                 .map(bookingMapper::toBookingDto)
                 .collect(Collectors.toList());
     }

@@ -13,9 +13,9 @@ public interface ItemService {
 
     ItemDto update(int ownerId, int id, ItemDto itemDto);
 
-    List<ItemDto> getAllByOwnerId(int ownerId);
+    List<ItemDto> getAllByOwnerId(int ownerId, int from, int size);
 
-    List<ItemDto> getAllByNameOrDescription(int userId, String substring);
+    List<ItemDto> getAllByNameOrDescription(String text, int from, int size);
 
     CommentDto createComment(int userId, int itemId, CreateCommentDto creatCommentDto);
 }
