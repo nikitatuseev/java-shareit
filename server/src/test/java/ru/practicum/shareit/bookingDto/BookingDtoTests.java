@@ -1,19 +1,29 @@
 package ru.practicum.shareit.bookingDto;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import ru.practicum.shareit.booking.model.BookingStatus;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.json.JsonTest;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.time.LocalDateTime;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThat;
 
+@JsonTest
 public class BookingDtoTests {
 
-    @Test
-    public void testGetterAndSetterMethods() {
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    private BookingDto bookingDto;
+
+    @BeforeEach
+    public void setup() {
         int id = 1;
         ItemDto item = new ItemDto();
         UserDto booker = new UserDto();
@@ -21,19 +31,27 @@ public class BookingDtoTests {
         LocalDateTime start = LocalDateTime.now();
         LocalDateTime end = LocalDateTime.now();
 
-        BookingDto bookingDto = new BookingDto();
-        bookingDto.setId(id);
-        bookingDto.setItem(item);
-        bookingDto.setBooker(booker);
-        bookingDto.setStatus(status);
-        bookingDto.setStart(start);
-        bookingDto.setEnd(end);
+        bookingDto = BookingDto.builder()
+                .id(id)
+                .item(item)
+                .booker(booker)
+                .status(status)
+                .start(start)
+                .end(end)
+                .build();
+    }
 
-        assertEquals(id, bookingDto.getId());
-        assertEquals(item, bookingDto.getItem());
-        assertEquals(booker, bookingDto.getBooker());
-        assertEquals(status, bookingDto.getStatus());
-        assertEquals(start, bookingDto.getStart());
-        assertEquals(end, bookingDto.getEnd());
+    @Test
+    public void testSerialization() throws Exception {
+        String jsonString = objectMapper.writeValueAsString(bookingDto);
+        assertThat(jsonString).isNotEmpty();
+    }
+
+    @Test
+    public void testDeserialization() throws Exception {
+        String jsonString = objectMapper.writeValueAsString(bookingDto);
+        BookingDto deserializedBookingDto = objectMapper.readValue(jsonString, BookingDto.class);
+        assertThat(deserializedBookingDto).isEqualTo(bookingDto);
     }
 }
+
